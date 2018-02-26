@@ -116,7 +116,7 @@ void keypad_read(unsigned char keys[16])
   // Set keys
   for (int col = 0; col < 4; col++)
 	for (int row = 0; row < 4; row++)
-	  keys[row + col*4] = !(pe[col] & (1 << 2 + row));
+	  keys[row + col*4] = !(pe[col] & (1 << (2 + row)));
 
   /* keys[3 + 0 * 4] = !(pe & (1 << 5)); */
   /* keys[2 + 0 * 4] = !(pe & (1 << 4)); */
