@@ -46,15 +46,20 @@ void labinit( void )
   // E5 E4 E3 E2 E1 E0
 
   // COLx
-  TRISDCLR = 1 << 1;
-  TRISFCLR = 1 << 1;
-  TRISDCLR = 1 << 0;
-  TRISDCLR = 1 << 8;
+  /* TRISDCLR = 1 << 1; */
+  /* TRISFCLR = 1 << 1; */
+  /* TRISDCLR = 1 << 0; */
+  /* TRISDCLR = 1 << 8; */
 
   PORTDSET = 1 << 1;
   PORTFSET = 1 << 1;
   PORTDSET = 1 << 0;
   PORTDSET = 1 << 8;
+
+  TRISDSET = 1 << 1;
+  TRISFSET = 1 << 1;
+  TRISDSET = 1 << 0;
+  TRISDSET = 1 << 8;
 
   // ROWx
   TRISESET = 1 << 5;
@@ -79,50 +84,71 @@ void labinit( void )
 
 void keypad_read(unsigned char keys[16])
 {
+  // Set cols to input when not reading
+  // seems to work ok.
+  // Reading PORTE once works better than four times per col
+  int pe[4];
+
+  TRISDCLR = 1 << 1;
   PORTDCLR = 1 << 1;
-  keys[3 + 3 * 4] = !(PORTE & (1 << 5));
-  keys[2 + 3 * 4] = !(PORTE & (1 << 4));
-  keys[1 + 3 * 4] = !(PORTE & (1 << 3));
-  keys[0 + 3 * 4] = !(PORTE & (1 << 2));
+  pe[3] = PORTE;
   PORTDSET = 1 << 1;
+  TRISDSET = 1 << 1;
 
+  TRISFCLR = 1 << 1;
   PORTFCLR = 1 << 1;
-  keys[3 + 2 * 4] = !(PORTE & (1 << 5));
-  keys[2 + 2 * 4] = !(PORTE & (1 << 4));
-  keys[1 + 2 * 4] = !(PORTE & (1 << 3));
-  keys[0 + 2 * 4] = !(PORTE & (1 << 2));
+  pe[2] = PORTE;
   PORTFSET = 1 << 1;
+  TRISFSET = 1 << 1;
 
+  TRISDCLR = 1 << 0;
   PORTDCLR = 1 << 0;
-  keys[3 + 1 * 4] = !(PORTE & (1 << 5));
-  keys[2 + 1 * 4] = !(PORTE & (1 << 4));
-  keys[1 + 1 * 4] = !(PORTE & (1 << 3));
-  keys[0 + 1 * 4] = !(PORTE & (1 << 2));
+  pe[1] = PORTE;
   PORTDSET = 1 << 0;
+  TRISDSET = 1 << 0;
 
+  TRISDCLR = 1 << 8;
   PORTDCLR = 1 << 8;
-  keys[3 + 0 * 4] = !(PORTE & (1 << 5));
-  keys[2 + 0 * 4] = !(PORTE & (1 << 4));
-  keys[1 + 0 * 4] = !(PORTE & (1 << 3));
-  keys[0 + 0 * 4] = !(PORTE & (1 << 2));
+  pe[0] = PORTE;
   PORTDSET = 1 << 8;
+  TRISDSET = 1 << 8;
+
+  // Set keys
+  for (int col = 0; col < 4; col++)
+	for (int row = 0; row < 4; row++)
+	  keys[row + col*4] = !(pe[col] & (1 << 2 + row));
+
+  /* keys[3 + 0 * 4] = !(pe & (1 << 5)); */
+  /* keys[2 + 0 * 4] = !(pe & (1 << 4)); */
+  /* keys[1 + 0 * 4] = !(pe & (1 << 3)); */
+  /* keys[0 + 0 * 4] = !(pe & (1 << 2)); */
 }
+
+char idx2key[] = {
+  '1', '4', '7', '0',
+  '2', '5', '8', 'F',
+  '3', '6', '9', 'E',
+  'A', 'B', 'C', 'D',
+};
 
 /* This function is called repetitively from the main program */
 void labwork( void )
 {
   unsigned char keys[16];
-  char str[17];
-  int i;
+  char str[5];
+  int c, r;
 
   keypad_read(keys);
 
-  for (i = 0; i < 16; i++)
-    str[i] = keys[i] ? 'x' : 'o';
+  str[4] = '\0';
 
-  str[16] = '\0';
+  for (r = 0; r < 4; r++) {
+	for (c = 0; c < 4; c++)
+	  str[c] = keys[c + r*4] ? idx2key[c*4 + r] : ' ';
 
-  display_string(0, str);
+	display_string(r, str);
+  }
+
   display_update();
 
   delay(100);

@@ -16,6 +16,9 @@ CFLAGS		+= -ffreestanding -march=mips32r2 -msoft-float -Wa,-msoft-float
 ASFLAGS		+= -msoft-float
 LDFLAGS		+= -T $(LINKSCRIPT)
 
+# JW
+CFLAGS		+= -std=c99
+
 # Filenames
 ELFFILE		= $(PROGNAME).elf
 HEXFILE		= $(PROGNAME).hex
