@@ -1,3 +1,8 @@
+/* DISPLAY CONFIGURATION
+ * Only pages 4-7 are used by display
+ * We remap pages to get 0-4 and use page addressing
+ */
+
 #include <pic32mx.h>
 
 #define MODE_CMD	(PORTFCLR = 0x10)
@@ -19,8 +24,10 @@
 
 #define CMD_LOW_COL_ADDR	0x00
 #define CMD_HIGH_COL_ADDR	0x10
-#define CMD_PA_PAGE_ADDR	0xB0
-#define CMD_HV_PAGE_ADDR	0x22
+// In example code, 0x22 is used instead for
+// page addressing which is not documented
+// for page addressing mode.
+#define CMD_PAGE_ADDR		0xB0
 
 #define CMD_CHARGE_PUMP		0x8D
 #define CMD_CHARGE_PUMP_ON	0x14
@@ -31,8 +38,9 @@
 #define CMD_COM_REVERSE		0xC8
 
 #define CMD_COM_PINS		0xDA
-// Should be 0x22 according to data sheet?
-#define CMD_COM_PINS_REMAP	0x20
+// This should be 0x22 according to data sheet
+// but is 0x20 in example code.
+#define CMD_COM_PINS_REMAP	0x22
 
 static void spin(int n)
 {
@@ -85,24 +93,24 @@ void disp_draw(void)
 {
   static int count = 0;
 
-  for (int line = 0; line < 4; line++) {
+  for (int page = 0; page < 4; page++) {
 	MODE_CMD;
-	send_sync(CMD_HV_PAGE_ADDR);
-	send_sync(line);
-	send_sync(0);
 
-	// mixed vh and page addr mode??
-	send_sync(CMD_HIGH_COL_ADDR);
+	send_sync(CMD_PAGE_ADDR | page);
+
+	send_sync(CMD_LOW_COL_ADDR | 0);
+	send_sync(CMD_HIGH_COL_ADDR | 0);
 
 	MODE_DATA;
-
-	for (int pos = 0; pos < 16; pos++) {
-	  for (int row = 0; row < 8; row++) {
-		unsigned char pixels = 0x0f;
-		if ((line * 4 * 16 + pos * 16 + row) % (4 * 16 * 8) == count++)
-		  pixels = 0;
-		send_sync(pixels);
-	  }
+	for (int col = 0; col < 128; col++) {
+	  unsigned char seg = 0x00;
+	  if ((page % 2) == (count % 2))
+		seg = ((col / 8) % 2) ? 0x00 : 0xFF;
+	  else
+		seg = ((col / 8) % 2) ? 0xFF : 0x00;
+	  send_sync(seg);
 	}
   }
+
+  count++;
 }
