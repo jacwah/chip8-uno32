@@ -10,9 +10,10 @@
 #include <stdint.h>   /* Declarations of uint_32 and the like */
 #include <pic32mx.h>  /* Declarations of system-specific addresses etc */
 #include "mipslab.h"  /* Declatations for these labs */
-#include "display.h"
 
 unsigned char bytemap[128*32];
+
+void *stdout;
 
 int main(void) {
         /*
@@ -57,25 +58,11 @@ int main(void) {
 	/* SPI2CON bit ON = 1; */
 	SPI2CONSET = 0x8000;
 	
-	disp_init();
 	labinit(); /* Do any lab-specific initialization */
-
-	for (int y = 0; y < 32; y++)
-		for (int x = 0; x < 128; x++)
-			if (y == x/2)
-				bytemap[y*128+x] = 1;
-			else
-				bytemap[y*128+x] = 0;
-
-	unsigned char image[4*128];
-	disp_convert(image, bytemap);
-	disp_draw(image);
 
 	while( 1 )
 	{
-	  disp_draw(image);
-	  delay(1000);
-	  //labwork(); /* Do lab-specific things again and again */
+	  labwork(); /* Do lab-specific things again and again */
 	}
 	return 0;
 }
