@@ -5,6 +5,7 @@
 
 #include <pic32mx.h>
 
+/* Display pin macros */
 #define MODE_CMD	(PORTFCLR = 0x10)
 #define MODE_DATA 	(PORTFSET = 0x10)
 
@@ -41,6 +42,11 @@
 // This should be 0x22 according to data sheet
 // but is 0x20 in example code.
 #define CMD_COM_PINS_REMAP	0x22
+
+/* Display properties */
+#define NUM_PAGES	4
+#define NUM_COLS	128
+#define NUM_ROWS	8
 
 static void spin(int n)
 {
@@ -89,28 +95,35 @@ void disp_init(void)
   send_sync(CMD_ON);
 }
 
-void disp_draw(void)
+/* Convert row-major, one byte per pixel, to display image. */
+void disp_convert(unsigned char *image, const unsigned char *bytemap)
 {
-  static int count = 0;
+  for (int page = 0; page < NUM_PAGES; page++)
+	for (int col = 0; col < NUM_COLS; col++) {
+	  unsigned char seg = 0x00;
+	  for (int row = 0; row < NUM_ROWS; row++) {
+		// cols are reversed
+		int x = NUM_COLS - col - 1;
+		int y = page * NUM_ROWS + row;
+		seg |= (!!bytemap[y * NUM_COLS + x]) << row;
+	  }
+	  image[page * NUM_COLS + col] = seg;
+	}
+}
 
-  for (int page = 0; page < 4; page++) {
+/* Image: row-major, 8 pixels per byte, up to down. */
+void disp_draw(unsigned char *image)
+{
+  for (int page = 0; page < NUM_PAGES; page++) {
 	MODE_CMD;
 
 	send_sync(CMD_PAGE_ADDR | page);
-
 	send_sync(CMD_LOW_COL_ADDR | 0);
 	send_sync(CMD_HIGH_COL_ADDR | 0);
 
 	MODE_DATA;
-	for (int col = 0; col < 128; col++) {
-	  unsigned char seg = 0x00;
-	  if ((page % 2) == (count % 2))
-		seg = ((col / 8) % 2) ? 0x00 : 0xFF;
-	  else
-		seg = ((col / 8) % 2) ? 0xFF : 0x00;
-	  send_sync(seg);
+	for (int col = 0; col < NUM_COLS; col++) {
+	  send_sync(image[NUM_COLS * page + col]);
 	}
   }
-
-  count++;
 }

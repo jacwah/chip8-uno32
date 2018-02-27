@@ -12,6 +12,8 @@
 #include "mipslab.h"  /* Declatations for these labs */
 #include "display.h"
 
+unsigned char bytemap[128*32];
+
 int main(void) {
         /*
 	  This will set the peripheral bus clock to the same frequency
@@ -55,21 +57,23 @@ int main(void) {
 	/* SPI2CON bit ON = 1; */
 	SPI2CONSET = 0x8000;
 	
-	//display_init();
 	disp_init();
-	/* display_string(0, "KTH/ICT lab"); */
-	/* display_string(1, "in Computer"); */
-	/* display_string(2, "Engineering"); */
-	/* display_string(3, "Welcome!"); */
-	/* display_update(); */
-	
-	/* display_image(96, icon); */
-	
 	labinit(); /* Do any lab-specific initialization */
+
+	for (int y = 0; y < 32; y++)
+		for (int x = 0; x < 128; x++)
+			if (y == x/2)
+				bytemap[y*128+x] = 1;
+			else
+				bytemap[y*128+x] = 0;
+
+	unsigned char image[4*128];
+	disp_convert(image, bytemap);
+	disp_draw(image);
 
 	while( 1 )
 	{
-	  disp_draw();
+	  disp_draw(image);
 	  delay(1000);
 	  //labwork(); /* Do lab-specific things again and again */
 	}
