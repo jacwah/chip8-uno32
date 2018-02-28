@@ -19,7 +19,6 @@ void kypd_init(void)
   // BE BC F3 F2
   // BA B8 B4 B2
 
-  // Use as digital
   AD1PCFGSET = 1 << 0x0;
   AD1PCFGSET = 1 << 0x1;
 
@@ -34,6 +33,11 @@ void kypd_init(void)
   TRISFCLR = 1 << 0x3;
   TRISBCLR = 1 << 0x0;
   TRISBCLR = 1 << 0x1;
+
+  ODCFSET = 1 << 0x2;
+  ODCFSET = 1 << 0x3;
+  ODCBSET = 1 << 0x0;
+  ODCBSET = 1 << 0x1;
 
   PORTFSET = 1 << 0x2;
   PORTFSET = 1 << 0x3;
