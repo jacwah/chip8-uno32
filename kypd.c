@@ -12,113 +12,96 @@ void kypd_init(void)
   // 07 08 09 10 11 12
 
   // chipKit pins
-  // 05 04 03 02 01 00
-  // 31 30 29 28 27 26
+  // 42 41 01 00 GD VC
+  // 17 16 15 14 GD VC
 
   // Registers
-  // D1 F1 D0 D8 F3 F2
-  // E5 E4 E3 E2 E1 E0
+  // BE BC F3 F2
+  // BA B8 B4 B2
 
-  // COLx
-  /* TRISDCLR = 1 << 1; */
-  /* TRISFCLR = 1 << 1; */
-  /* TRISDCLR = 1 << 0; */
-  /* TRISDCLR = 1 << 8; */
+  AD1PCFGSET = 1 << 0x0;
+  AD1PCFGSET = 1 << 0x1;
 
-  PORTDSET = 1 << 1;
-  PORTFSET = 1 << 1;
-  PORTDSET = 1 << 0;
-  PORTDSET = 1 << 8;
+  AD1PCFGSET = 1 << 0x2;
+  AD1PCFGSET = 1 << 0x4;
+  AD1PCFGSET = 1 << 0x8;
+  AD1PCFGSET = 1 << 0xA;
+  AD1PCFGSET = 1 << 0xC;
+  AD1PCFGSET = 1 << 0xE;
 
-  TRISDSET = 1 << 1;
-  TRISFSET = 1 << 1;
-  TRISDSET = 1 << 0;
-  TRISDSET = 1 << 8;
+  TRISFCLR = 1 << 0x2;
+  TRISFCLR = 1 << 0x3;
+  TRISBCLR = 1 << 0x0;
+  TRISBCLR = 1 << 0x1;
 
-  // ROWx
-  TRISESET = 1 << 5;
-  TRISESET = 1 << 4;
-  TRISESET = 1 << 3;
-  TRISESET = 1 << 2;
+  ODCFSET = 1 << 0x2;
+  ODCFSET = 1 << 0x3;
+  ODCBSET = 1 << 0x0;
+  ODCBSET = 1 << 0x1;
 
-  // VCC
-  TRISFCLR = 1 << 2;
-  TRISECLR = 1 << 0;
+  PORTFSET = 1 << 0x2;
+  PORTFSET = 1 << 0x3;
+  PORTBSET = 1 << 0x0;
+  PORTBSET = 1 << 0x1;
 
-  PORTFSET = 1 << 2;
-  PORTESET = 1 << 0;
-
-  // GND
-  TRISFCLR = 1 << 3;
-  TRISECLR = 1 << 1;
-
-  PORTFCLR = 1 << 3;
-  PORTECLR = 1 << 1;
+  TRISBSET = 1 << 0x2;
+  TRISBSET = 1 << 0x4;
+  TRISBSET = 1 << 0x8;
+  TRISBSET = 1 << 0xA;
 }
 
 void kypd_read(unsigned char keys[16])
 {
-  // Set cols to input when not reading
-  // seems to work ok.
-  // Reading PORTE once works better than four times per col
-  int pe[4];
+  int col[4];
 
-  TRISDCLR = 1 << 1;
-  PORTDCLR = 1 << 1;
-  pe[3] = PORTE;
-  PORTDSET = 1 << 1;
-  TRISDSET = 1 << 1;
+  PORTFCLR = 1 << 0x2;
+  col[0] = PORTB;
+  PORTFSET = 1 << 0x2;
+  delay(1);
 
-  TRISFCLR = 1 << 1;
-  PORTFCLR = 1 << 1;
-  pe[2] = PORTE;
-  PORTFSET = 1 << 1;
-  TRISFSET = 1 << 1;
+  PORTFCLR = 1 << 0x3;
+  col[1] = PORTB;
+  PORTFSET = 1 << 0x3;
+  delay(1);
 
-  TRISDCLR = 1 << 0;
-  PORTDCLR = 1 << 0;
-  pe[1] = PORTE;
-  PORTDSET = 1 << 0;
-  TRISDSET = 1 << 0;
+  PORTBCLR = 1 << 0x0;
+  col[2] = PORTB;
+  PORTBSET = 1 << 0x0;
+  delay(1);
 
-  TRISDCLR = 1 << 8;
-  PORTDCLR = 1 << 8;
-  pe[0] = PORTE;
-  PORTDSET = 1 << 8;
-  TRISDSET = 1 << 8;
+  PORTBCLR = 1 << 0x1;
+  col[3] = PORTB;
+  PORTBSET = 1 << 0x1;
+  delay(1);
 
-  // Set keys
-  for (int col = 0; col < 4; col++)
-    for (int row = 0; row < 4; row++)
-      keys[row + col*4] = !(pe[col] & (1 << (2 + row)));
-
-  /* keys[3 + 0 * 4] = !(pe & (1 << 5)); */
-  /* keys[2 + 0 * 4] = !(pe & (1 << 4)); */
-  /* keys[1 + 0 * 4] = !(pe & (1 << 3)); */
-  /* keys[0 + 0 * 4] = !(pe & (1 << 2)); */
+  for (int x = 0; x < 4; x++) {
+    keys[0*4 + x] = !(col[x] & (1 << 0x2));
+    keys[1*4 + x] = !(col[x] & (1 << 0x4));
+    keys[2*4 + x] = !(col[x] & (1 << 0x8));
+    keys[3*4 + x] = !(col[x] & (1 << 0xA));
+  }
 }
 
 void kypd_printdebug(void)
 {
   static const char idx2key[] = {
-    '1', '4', '7', '0',
-    '2', '5', '8', 'F',
-    '3', '6', '9', 'E',
-    'A', 'B', 'C', 'D',
+    '1', '2', '3', 'A',
+    '4', '5', '6', 'B',
+    '7', '8', '9', 'C',
+    '0', 'F', 'E', 'D',
   };
 
   unsigned char keys[16];
   char str[5];
-  int c, r;
 
   kypd_read(keys);
 
   str[4] = '\0';
 
-  for (r = 0; r < 4; r++) {
-    for (c = 0; c < 4; c++)
-      str[c] = keys[c + r*4] ? idx2key[c*4 + r] : ' ';
+  for (int y = 0; y < 4; y++) {
+    for (int x = 0; x < 4; x++)
+      str[x] = keys[x + y*4] ? idx2key[x + y*4] : ' ';
 
-    display_string(r, str);
+    display_string(y, str);
   }
 }
