@@ -17,13 +17,9 @@
 #include "display.h"
 #include "debug.h"
 #include "c8e.h"
+#include "menu.h"
 
 struct c8 vm;
-
-unsigned char testprog[] = {
-  0x6a, 0x00, 0x6b, 0x1d, 0x6c, 0x0d, 0x00, 0xe0, 0xfa, 0x29, 0xdb, 0xc5,
-  0xf0, 0x0a, 0x7a, 0x01, 0x12, 0x06
-};
 
 /* Interrupt Service Routine */
 void user_isr( void )
@@ -35,7 +31,9 @@ void labinit( void )
 {
   kypd_init();
   disp_init();
-  c8_load(&vm, testprog, sizeof(testprog));
+
+  struct prog *prog = menu_pick();
+  c8_load(&vm, prog->code, prog->len);
 }
 
 /* This function is called repetitively from the main program */
