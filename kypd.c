@@ -1,6 +1,13 @@
 #include <pic32mx.h>
 #include "mipslab.h"
 
+const char idx2key[] = {
+  '1', '2', '3', 'A',
+  '4', '5', '6', 'B',
+  '7', '8', '9', 'C',
+  '0', 'F', 'E', 'D',
+};
+
 void kypd_init(void)
 {
   // KYPD functions
@@ -84,13 +91,6 @@ void kypd_read(unsigned char keys[16])
 
 void kypd_printdebug(void)
 {
-  static const char idx2key[] = {
-    '1', '2', '3', 'A',
-    '4', '5', '6', 'B',
-    '7', '8', '9', 'C',
-    '0', 'F', 'E', 'D',
-  };
-
   unsigned char keys[16];
   char str[5];
 

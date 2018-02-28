@@ -10,6 +10,7 @@
 #include <stdint.h>   /* Declarations of uint_32 and the like */
 #include <pic32mx.h>  /* Declarations of system-specific addresses etc */
 #include "mipslab.h"  /* Declatations for these labs */
+#include "menu.h"
 
 unsigned char bytemap[128*32];
 
@@ -59,6 +60,8 @@ int main(void) {
 	SPI2CONSET = 0x8000;
 	
 	labinit(); /* Do any lab-specific initialization */
+
+	menu_pick();
 
 	while( 1 )
 	{
