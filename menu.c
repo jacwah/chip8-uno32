@@ -18,7 +18,7 @@ struct prog menu[] = {
 void writec(unsigned char *image, int line, int col, char c)
 {
     for (int sl = 0; sl < 8; sl++)
-        image[line*128 + 8 * (15 - col) + 8 - sl] = font[8 * c + sl];
+        image[line*128 + 8 * (15 - col) + 7 - sl] = font[8 * c + sl];
 }
 
 void writes(unsigned char *image, int line, int col, const char *s)
