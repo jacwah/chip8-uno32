@@ -35,13 +35,14 @@
 
 #define CMD_PRECHARGE		0xD9
 
-#define CMD_SEG_REVERSE		0xA0
+#define CMD_SEG_REVERSE		0xA1
 #define CMD_COM_REVERSE		0xC8
 
 #define CMD_COM_PINS		0xDA
 // This should be 0x22 according to data sheet
 // but is 0x20 in example code.
 #define CMD_COM_PINS_REMAP	0x22
+//#define CMD_COM_PINS_REMAP	0x20
 
 /* Display properties */
 #define NUM_PAGES	4
@@ -102,10 +103,8 @@ void disp_convert(unsigned char *image, const unsigned char *bytemap)
 	for (int col = 0; col < NUM_COLS; col++) {
 	  unsigned char seg = 0x00;
 	  for (int row = 0; row < NUM_ROWS; row++) {
-		// cols are reversed
-		int x = NUM_COLS - col - 1;
 		int y = page * NUM_ROWS + row;
-		seg |= (!!bytemap[y * NUM_COLS + x]) << row;
+		seg |= (!!bytemap[y * NUM_COLS + col]) << row;
 	  }
 	  image[page * NUM_COLS + col] = seg;
 	}
@@ -117,9 +116,16 @@ void disp_draw(unsigned char *image)
   for (int page = 0; page < NUM_PAGES; page++) {
 	MODE_CMD;
 
+	// According to data sheet
 	send_sync(CMD_PAGE_ADDR | page);
 	send_sync(CMD_LOW_COL_ADDR | 0);
 	send_sync(CMD_HIGH_COL_ADDR | 0);
+
+	// Example code, mixing addressing modes
+	/* send_sync(0x22); */
+	/* send_sync(page); */
+	/* send_sync(0x0); */
+	/* send_sync(0x10); */
 
 	MODE_DATA;
 	for (int col = 0; col < NUM_COLS; col++) {
