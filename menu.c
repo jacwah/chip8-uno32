@@ -10,6 +10,7 @@ struct prog menu[] = {
     { "FONT", FONT, sizeof(FONT) },
     { "FONT2", FONT2, sizeof(FONT2) },
     { "PONG3", PONG3, sizeof(PONG3) },
+    { "TETRIS", TETRIS, sizeof(TETRIS) },
 };
 
 #define NUM_PROG (sizeof(menu) / sizeof(menu[0]))
