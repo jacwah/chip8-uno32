@@ -1,6 +1,7 @@
 /* DISPLAY CONFIGURATION
  * Only pages 4-7 are used by display
- * We remap pages to get 0-4 and use page addressing
+ * We remap pages to get 0-4 and use horizontal addressing
+ * The whole screen is updated at once each time
  */
 
 #include <pic32mx.h>
@@ -30,6 +31,11 @@
 // for page addressing mode.
 #define CMD_PAGE_ADDR		0xB0
 
+#define CMD_PAGE_RANGE		0x22
+
+#define CMD_ADDR_MODE		0x20
+#define CMD_ADDR_MODE_HORIZ	0x00
+
 #define CMD_CHARGE_PUMP		0x8D
 #define CMD_CHARGE_PUMP_ON	0x14
 
@@ -54,15 +60,15 @@ static void spin(int n)
   while (n--);
 }
 
-static void send_sync(unsigned char data)
+unsigned char send_sync(unsigned char data)
 {
   // Wait for empty transmit buffer
   while(!(SPI2STAT & 0x08));
-
   SPI2BUF = data;
-
   // Wait for transmit
   while(!(SPI2STAT & 1));
+  // Read required?!
+  return SPI2BUF;
 }
 
 void disp_init(void)
@@ -93,7 +99,14 @@ void disp_init(void)
   send_sync(CMD_COM_PINS);
   send_sync(CMD_COM_PINS_REMAP);
 
+  send_sync(CMD_ADDR_MODE);
+  send_sync(CMD_ADDR_MODE_HORIZ);
+
   send_sync(CMD_ON);
+
+  send_sync(CMD_PAGE_RANGE);
+  send_sync(0);
+  send_sync(3);
 }
 
 /* Convert row-major, one byte per pixel, to display image. */
@@ -113,23 +126,21 @@ void disp_convert(unsigned char *image, const unsigned char *bytemap)
 /* Image: row-major, 8 pixels per byte, up to down. */
 void disp_draw(unsigned char *image)
 {
-  for (int page = 0; page < NUM_PAGES; page++) {
+	// No need to set this at each draw
+	/*
 	MODE_CMD;
 
-	// According to data sheet
-	send_sync(CMD_PAGE_ADDR | page);
-	send_sync(CMD_LOW_COL_ADDR | 0);
-	send_sync(CMD_HIGH_COL_ADDR | 0);
+	send_sync(0x22);
+	send_sync(0);
+	send_sync(3);
 
-	// Example code, mixing addressing modes
-	/* send_sync(0x22); */
-	/* send_sync(page); */
-	/* send_sync(0x0); */
-	/* send_sync(0x10); */
+	// Default
+	send_sync(0x21);
+	send_sync(0x0);
+	send_sync(0x7F);
+	*/
 
 	MODE_DATA;
-	for (int col = 0; col < NUM_COLS; col++) {
-	  send_sync(image[NUM_COLS * page + col]);
-	}
-  }
+	for (int i = 0; i < NUM_PAGES * NUM_COLS; i++)
+	  send_sync(image[i]);
 }
