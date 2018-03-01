@@ -7,10 +7,10 @@
 #include <string.h>
 
 struct prog menu[] = {
-    { "FONT", FONT, sizeof(FONT) },
-    { "FONT2", FONT2, sizeof(FONT2) },
-    { "PONG3", PONG3, sizeof(PONG3) },
-    { "TETRIS", TETRIS, sizeof(TETRIS) },
+    { "FONT", FONT, sizeof(FONT), 0x000 },
+    { "FONT2", FONT2, sizeof(FONT2), 0x000 },
+    { "PONG3", PONG3, sizeof(PONG3), 0x22A },
+    { "TETRIS", TETRIS, sizeof(TETRIS), 0x000 },
 };
 
 #define NUM_PROG (sizeof(menu) / sizeof(menu[0]))

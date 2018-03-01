@@ -144,3 +144,10 @@ void disp_draw(unsigned char *image)
 	for (int i = 0; i < NUM_PAGES * NUM_COLS; i++)
 	  send_sync(image[i]);
 }
+
+void disp_clear()
+{
+  MODE_DATA;
+  for (int i = 0; i < NUM_PAGES * NUM_COLS; i++)
+    send_sync(0x00);
+}

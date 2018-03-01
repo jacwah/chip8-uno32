@@ -20,6 +20,7 @@
 #include "menu.h"
 
 struct c8 vm;
+const struct prog *prog;
 
 /* Interrupt Service Routine */
 void user_isr( void )
@@ -32,8 +33,10 @@ void labinit( void )
   kypd_init();
   disp_init();
 
-  struct prog *prog = menu_pick();
+  prog = menu_pick();
   c8_load(&vm, prog->code, prog->len);
+
+  disp_clear();
 
   // 256 prescale, off
   T2CON = 7 << 4;
@@ -81,17 +84,19 @@ void labwork( void )
     c8_step(&vm);
   }
 
-  if (t2) {
+  if (t2 || prog->syncpoint) {
     unsigned char dbuf[32*128];
     unsigned char image[4*128];
 
     c8_tick(&vm);
 
-    for (int y = 0; y < DHEIGHT; y++) {
-      for (int x = 0; x < DWIDTH; x++)
-        dbuf[y * DWIDTH * 2 + x] = vm.display[y * DWIDTH + x];
-      for (int x = DWIDTH; x < DWIDTH * 2; x++)
-        dbuf[y * DWIDTH * 2 + x] = 0;
+    if (prog->syncpoint == 0 || vm.pc == prog->syncpoint) {
+      for (int y = 0; y < DHEIGHT; y++) {
+        for (int x = 0; x < DWIDTH; x++)
+          dbuf[y * DWIDTH * 2 + x] = vm.display[y * DWIDTH + x];
+        for (int x = DWIDTH; x < DWIDTH * 2; x++)
+          dbuf[y * DWIDTH * 2 + x] = 0;
+      }
     }
 
     if (debug_enabled())
