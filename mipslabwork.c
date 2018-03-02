@@ -66,37 +66,37 @@ void labinit( void )
 /* This function is called repetitively from the main program */
 void labwork( void )
 {
-  int t2 = 0, t4 = 0;
+  int t60hz = 0, emuclock = 0;
 
 
   if (IFS(0) & (1 << 8)) {
-    t2 = 1;
+    t60hz = 1;
     IFSCLR(0) = 1 << 8;
   }
 
   if (IFS(0) & (1 << 16)) {
-    t4 = 1;
+    emuclock = 1;
     IFSCLR(0) = 1 << 16;
   }
 
-  if (t4) {
+  if (emuclock) {
     kypd_read(vm.keys);
     c8_step(&vm);
   }
 
-  if (t2 || prog->syncpoint) {
+  if (t60hz)
+    c8_tick(&vm);
+
+  if (prog->syncpoint == 0 && t60hz
+      || prog->syncpoint == vm.pc) {
     unsigned char dbuf[32*128];
     unsigned char image[4*128];
 
-    c8_tick(&vm);
-
-    if (prog->syncpoint == 0 || vm.pc == prog->syncpoint) {
-      for (int y = 0; y < DHEIGHT; y++) {
-        for (int x = 0; x < DWIDTH; x++)
-          dbuf[y * DWIDTH * 2 + x] = vm.display[y * DWIDTH + x];
-        for (int x = DWIDTH; x < DWIDTH * 2; x++)
-          dbuf[y * DWIDTH * 2 + x] = 0;
-      }
+    for (int y = 0; y < DHEIGHT; y++) {
+      for (int x = 0; x < DWIDTH; x++)
+        dbuf[y * DWIDTH * 2 + x] = vm.display[y * DWIDTH + x];
+      for (int x = DWIDTH; x < DWIDTH * 2; x++)
+        dbuf[y * DWIDTH * 2 + x] = 0;
     }
 
     if (debug_enabled())
