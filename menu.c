@@ -6,11 +6,26 @@
 #include "kypd.h"
 #include <string.h>
 
+unsigned char keymap_default[] = {
+    0x0, 0x1, 0x2, 0x3,
+    0x4, 0x5, 0x6, 0x7,
+    0x8, 0x9, 0xA, 0xB,
+    0xC, 0xD, 0xE, 0xF,
+};
+
+// CHIP-8 controls: 1, 4 for left and C, D for right.
+unsigned char keymap_pong[] = {
+    0x1, 0x0, 0x2, 0x3,
+    0x4, 0x5, 0x6, 0x7,
+    0x8, 0x9, 0xA, 0xC,
+    0xB, 0xE, 0xF, 0xD,
+};
+
 struct prog menu[] = {
-    { "FONT", FONT, sizeof(FONT), 0x000 },
-    { "FONT2", FONT2, sizeof(FONT2), 0x000 },
-    { "PONG3", PONG3, sizeof(PONG3), 0x22A },
-    { "TETRIS", TETRIS, sizeof(TETRIS), 0x000 },
+    { "FONT", FONT, sizeof(FONT), 0x000, keymap_default },
+    { "FONT2", FONT2, sizeof(FONT2), 0x000, keymap_default },
+    { "PONG3", PONG3, sizeof(PONG3), 0x22A, keymap_pong },
+    { "TETRIS", TETRIS, sizeof(TETRIS), 0x000, keymap_default },
 };
 
 #define NUM_PROG (sizeof(menu) / sizeof(menu[0]))

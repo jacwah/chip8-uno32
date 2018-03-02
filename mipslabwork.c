@@ -80,7 +80,13 @@ void labwork( void )
   }
 
   if (emuclock) {
-    kypd_read(vm.keys);
+    unsigned char keys[16];
+
+    kypd_read(keys);
+
+    for (int i = 0; i < 16; i++)
+      vm.keys[prog->keymap[i]] = keys[i];
+
     c8_step(&vm);
   }
 
