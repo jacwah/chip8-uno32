@@ -45,12 +45,11 @@ void labinit( void )
   TMR2 = 0;
   TMR4 = 0;
 
-  // 60 Hz
-  PR2 = 5208;
-  // 600 Hz
-  //PR4 = 520;
-  // 800 Hz
-  PR4 = 390;
+  // 60 Hz clock
+  PR2 = (80000000 / 256) / 60;
+
+  // Emulator clock
+  PR4 = (80000000 / 256) / 800;
 
   IFSCLR(0) = (1 << 8) | (1 << 16);
 
@@ -67,7 +66,6 @@ void labinit( void )
 void labwork( void )
 {
   int t60hz = 0, emuclock = 0;
-
 
   if (IFS(0) & (1 << 8)) {
     t60hz = 1;
