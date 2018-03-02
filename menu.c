@@ -22,10 +22,10 @@ unsigned char keymap_pong[] = {
 };
 
 struct prog menu[] = {
-    { "FONT", FONT, sizeof(FONT), 0x000, keymap_default, DMODE_RAW },
-    { "FONT2", FONT2, sizeof(FONT2), 0x000, keymap_default, DMODE_RAW },
-    { "PONG3", PONG3, sizeof(PONG3), 0x22A, keymap_pong, DMODE_RAW },
-    { "TETRIS", TETRIS, sizeof(TETRIS), 0x000, keymap_default, DMODE_TILT },
+    { "FONT", FONT, sizeof(FONT), 0x000, keymap_default },
+    { "FONT2", FONT2, sizeof(FONT2), 0x000, keymap_default },
+    { "PONG3", PONG3, sizeof(PONG3), 0x22A, keymap_pong },
+    { "TETRIS", TETRIS, sizeof(TETRIS), 0x000, keymap_default },
 };
 
 #define NUM_PROG (sizeof(menu) / sizeof(menu[0]))

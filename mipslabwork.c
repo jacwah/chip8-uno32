@@ -23,6 +23,12 @@
 struct c8 vm;
 const struct prog *prog;
 
+enum {
+    DMODE_RAW,
+    DMODE_TILT,
+};
+
+
 /* Interrupt Service Routine */
 void user_isr( void )
 {
@@ -38,6 +44,8 @@ void labinit( void )
   c8_load(&vm, prog->code, prog->len);
 
   disp_clear();
+
+  TRISDSET = 1 << 10;
 
   // 256 prescale, off
   T2CON = 7 << 4;
@@ -127,11 +135,15 @@ void labwork( void )
       || prog->syncpoint == vm.pc) {
     unsigned char dbuf[32*128];
     unsigned char image[4*128];
+    int dmode = DMODE_RAW;
 
     if (debug_enabled())
       debug_keys(dbuf, DWIDTH * 2, vm.keys);
 
-    dbuf_blit(dbuf, vm.display, prog->dmode);
+    if (PORTD & (1 << 10))
+      dmode = DMODE_TILT;
+
+    dbuf_blit(dbuf, vm.display, dmode);
     disp_convert(image, dbuf);
     disp_draw(image);
   }
