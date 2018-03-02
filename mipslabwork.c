@@ -12,6 +12,7 @@
 
 #include <stdint.h>   /* Declarations of uint_32 and the like */
 #include <pic32mx.h>  /* Declarations of system-specific addresses etc */
+#include <string.h>
 #include "mipslab.h"  /* Declatations for these labs */
 #include "kypd.h"
 #include "display.h"
@@ -62,6 +63,37 @@ void labinit( void )
   T4CONSET = 1 << 15;
 }
 
+void dbuf_blit(unsigned char *dbuf, const unsigned char *display, int dmode)
+{
+  if (dmode == DMODE_RAW) {
+    for (int y = 0; y < DHEIGHT; y++) {
+      for (int x = 0; x < DWIDTH; x++)
+        dbuf[y * DWIDTH * 2 + x] = vm.display[y * DWIDTH + x];
+      for (int x = DWIDTH; x < DWIDTH * 2; x++)
+        dbuf[y * DWIDTH * 2 + x] = 0;
+    }
+  } else if (dmode == DMODE_TILT) {
+    memset(dbuf, 0, 32 * 128);
+
+    // Draw play area
+    for (int y = 0; y < 32; y++) {
+      for (int x = 0; x < 64; x++) {
+        int vy = 31 - x / 2;
+        int vx = y / 2 + 3*8;
+        dbuf[y * 128 + x] = vm.display[vy * 64 + vx];
+      }
+
+      // Draw score area
+      if (y < 3*8)
+        for (int x = 64; x < 64 + 32; x++) {
+          int vy = 64 + 32 - x - 1;
+          int vx = y + 5 * 8;
+          dbuf[y * 128 + x] = vm.display[vy * 64 + vx];
+        }
+    }
+  }
+}
+
 /* This function is called repetitively from the main program */
 void labwork( void )
 {
@@ -96,16 +128,10 @@ void labwork( void )
     unsigned char dbuf[32*128];
     unsigned char image[4*128];
 
-    for (int y = 0; y < DHEIGHT; y++) {
-      for (int x = 0; x < DWIDTH; x++)
-        dbuf[y * DWIDTH * 2 + x] = vm.display[y * DWIDTH + x];
-      for (int x = DWIDTH; x < DWIDTH * 2; x++)
-        dbuf[y * DWIDTH * 2 + x] = 0;
-    }
-
     if (debug_enabled())
       debug_keys(dbuf, DWIDTH * 2, vm.keys);
 
+    dbuf_blit(dbuf, vm.display, prog->dmode);
     disp_convert(image, dbuf);
     disp_draw(image);
   }
