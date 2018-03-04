@@ -1,10 +1,10 @@
 #include <stdlib.h>
+#include <string.h>
 #include "mipslab.h"
-#include "c8code.h"
 #include "menu.h"
 #include "display.h"
 #include "kypd.h"
-#include <string.h>
+#include "games.h"
 
 unsigned char keymap_default[] = {
     0x0, 0x1, 0x2, 0x3,
@@ -21,11 +21,21 @@ unsigned char keymap_pong[] = {
     0xB, 0xE, 0xF, 0xD,
 };
 
+unsigned char keymap_chip8[] = {
+    0x1, 0x2, 0x3, 0xC,
+    0x4, 0x5, 0x6, 0xD,
+    0x7, 0x8, 0x9, 0xE,
+    0xA, 0x0, 0xB, 0xF,
+};
+
 struct prog menu[] = {
-    { "FONT", FONT, sizeof(FONT), 0x000, keymap_default },
-    { "FONT2", FONT2, sizeof(FONT2), 0x000, keymap_default },
-    { "PONG3", PONG3, sizeof(PONG3), 0x22A, keymap_pong },
+    { "PONG", PONG3, sizeof(PONG3), 0x22A, keymap_pong },
     { "TETRIS", TETRIS, sizeof(TETRIS), 0x000, keymap_default },
+    { "MERLIN", MERLIN, sizeof(MERLIN), 0x000, keymap_chip8 },
+    { "BRKOUT", BREAKOUT, sizeof(BREAKOUT), 0x000, keymap_chip8 },
+    { "WALL", WALL, sizeof(WALL), 0x000, keymap_chip8 },
+    { "MAZE", MAZE, sizeof(MAZE), 0x000, keymap_chip8 },
+    { "BLITZ", BLITZ, sizeof(BLITZ), 0x000, keymap_chip8 },
 };
 
 #define NUM_PROG (sizeof(menu) / sizeof(menu[0]))
@@ -69,7 +79,7 @@ struct prog *menu_pick(void)
             col = 8;
 
         writec(image, line, col + 0, idx2key[item2key[i]]);
-        writes(image, line, col + 2, menu[i].name);
+        writes(image, line, col + 1, menu[i].name);
     }
     disp_draw(image);
 
