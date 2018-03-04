@@ -1,3 +1,9 @@
+/* c8e.h
+ 
+   This file written 2018 by Jacob Wahlgren
+
+   For copyright and licensing, see file COPYING */
+
 #define PSTART  0x200
 
 #define DWIDTH  64

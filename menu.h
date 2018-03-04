@@ -1,3 +1,9 @@
+/* debug.h
+
+   This file written 2018 by Jacob Wahlgren
+
+   For copyright and licensing, see file COPYING */
+
 struct prog {
     char *name;
     unsigned char *code;

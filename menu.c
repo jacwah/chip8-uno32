@@ -1,3 +1,10 @@
+/* menu.c
+
+   This file written 2018 by Jacob Wahlgren
+   The write* functions inspired by code by F Lundevall
+
+   For copyright and licensing, see file COPYING */
+
 #include <stdlib.h>
 #include <string.h>
 #include "mipslab.h"

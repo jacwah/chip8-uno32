@@ -1,3 +1,9 @@
+/* c8e.c
+
+   This file written 2018 by Jacob Wahlgren
+
+   For copyright and licensing, see file COPYING */
+
 #include "c8e.h"
 #include <stdlib.h>
 #include <string.h>

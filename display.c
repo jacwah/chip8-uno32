@@ -1,3 +1,10 @@
+/* display.c
+
+   This file written 2018 by Jacob Wahlgren
+   Heavily inspired by code written by F Lundevall and Axel Isaksson
+
+   For copyright and licensing, see file COPYING */
+
 /* DISPLAY CONFIGURATION
  * Only pages 4-7 are used by display
  * We remap pages to get 0-4 and use horizontal addressing
@@ -5,6 +12,7 @@
  */
 
 #include <pic32mx.h>
+#include "display.h"
 
 /* Display pin macros */
 #define MODE_CMD	(PORTFCLR = 0x10)
@@ -20,9 +28,9 @@
 #define VBAT_OFF	(PORTFSET = 0x20)
 
 /* SPI commands */
-#define CMD_DISPLAY			0xA4
-#define CMD_OFF				0xAE
-#define CMD_ON 				0xAF
+#define CMD_DISPLAY		0xA4
+#define CMD_OFF			0xAE
+#define CMD_ON 			0xAF
 
 #define CMD_LOW_COL_ADDR	0x00
 #define CMD_HIGH_COL_ADDR	0x10
@@ -113,36 +121,22 @@ void disp_init(void)
 void disp_convert(unsigned char *image, const unsigned char *bytemap)
 {
   for (int page = 0; page < NUM_PAGES; page++)
-	for (int col = 0; col < NUM_COLS; col++) {
-	  unsigned char seg = 0x00;
-	  for (int row = 0; row < NUM_ROWS; row++) {
-		int y = page * NUM_ROWS + row;
-		seg |= (!!bytemap[y * NUM_COLS + col]) << row;
-	  }
-	  image[page * NUM_COLS + col] = seg;
-	}
+    for (int col = 0; col < NUM_COLS; col++) {
+      unsigned char seg = 0x00;
+      for (int row = 0; row < NUM_ROWS; row++) {
+	int y = page * NUM_ROWS + row;
+	seg |= (!!bytemap[y * NUM_COLS + col]) << row;
+      }
+      image[page * NUM_COLS + col] = seg;
+    }
 }
 
 /* Image: row-major, 8 pixels per byte, up to down. */
 void disp_draw(unsigned char *image)
 {
-	// No need to set this at each draw
-	/*
-	MODE_CMD;
-
-	send_sync(0x22);
-	send_sync(0);
-	send_sync(3);
-
-	// Default
-	send_sync(0x21);
-	send_sync(0x0);
-	send_sync(0x7F);
-	*/
-
-	MODE_DATA;
-	for (int i = 0; i < NUM_PAGES * NUM_COLS; i++)
-	  send_sync(image[i]);
+  MODE_DATA;
+  for (int i = 0; i < NUM_PAGES * NUM_COLS; i++)
+    send_sync(image[i]);
 }
 
 void disp_clear()

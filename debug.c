@@ -1,3 +1,9 @@
+/* debug.c
+
+   This file written 2018 by Jacob Wahlgren
+
+   For copyright and licensing, see file COPYING */
+
 #include <pic32mx.h>
 #include "debug.h"
 

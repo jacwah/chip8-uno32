@@ -1,5 +1,12 @@
+/* kypd.c
+
+   This file written 2018 by Jacob Wahlgren
+
+   For copyright and licensing, see file COPYING */
+
 #include <pic32mx.h>
 #include "mipslab.h"
+#include "kypd.h"
 
 const char idx2key[] = {
   '1', '2', '3', 'A',
@@ -86,22 +93,5 @@ void kypd_read(unsigned char keys[16])
     keys[1*4 + x] = !(col[x] & (1 << 0x4));
     keys[2*4 + x] = !(col[x] & (1 << 0x8));
     keys[3*4 + x] = !(col[x] & (1 << 0xA));
-  }
-}
-
-void kypd_printdebug(void)
-{
-  unsigned char keys[16];
-  char str[5];
-
-  kypd_read(keys);
-
-  str[4] = '\0';
-
-  for (int y = 0; y < 4; y++) {
-    for (int x = 0; x < 4; x++)
-      str[x] = keys[x + y*4] ? idx2key[x + y*4] : ' ';
-
-    display_string(y, str);
   }
 }
