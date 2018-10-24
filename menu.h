@@ -1,4 +1,4 @@
-/* debug.h
+/* menu.h
 
    This file written 2018 by Jacob Wahlgren
 
